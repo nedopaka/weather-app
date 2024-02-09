@@ -11,7 +11,7 @@ function App() {
   const [errorMsg, setErrorMsg] = useState('');
 
   // Custom hook to handle API requests. Fires when prompt changes.
-  const { error, locationData, weatherData } = useApiRequests(prompt);
+  const { error, promptData, weatherData } = useApiRequests(prompt);
 
   // Set error message if error is returned from API request.
   useEffect(() => {
@@ -28,6 +28,12 @@ function App() {
       setPrompt('');
     }
   }, [weatherData]);
+
+  useEffect(() => {
+    if (promptData && promptData.units) {
+      setUnits(promptData.units);
+    }
+  }, [promptData]);
 
   // Handle form submission. Set prompt to user input.
   const handleSubmit = (newPrompt) => {
@@ -49,8 +55,8 @@ function App() {
             isLoading={weatherDataLoading}
             data={weatherData}
             units={units}
-            country={locationData[0].country}
-            USstate={locationData[0].state}
+            country={promptData.country}
+            USstate={promptData.state}
             setUnits={setUnits}
           />
         ) : (
