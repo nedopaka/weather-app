@@ -3,15 +3,19 @@ import './App.css';
 import useApiRequests from './components/useApiRequests';
 import WeatherForm from './components/WeatherForm';
 import WeatherCard from './components/WeatherCard';
+import Description from './components/Description';
 
 function App() {
   const [prompt, setPrompt] = useState('');
   const [units, setUnits] = useState('metric');
   const [weatherDataLoading, setWeatherDataLoading] = useState(false);
+  const [weatherDescriptionLoading, setWeatherDescriptionLoading] =
+    useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   // Custom hook to handle API requests. Fires when prompt changes.
-  const { error, promptData, weatherData } = useApiRequests(prompt);
+  const { error, promptData, weatherData, weatherDescription } =
+    useApiRequests(prompt);
 
   // Set error message if error is returned from API request.
   useEffect(() => {
@@ -30,6 +34,12 @@ function App() {
   }, [weatherData]);
 
   useEffect(() => {
+    if (weatherDescription) {
+      setWeatherDescriptionLoading(false);
+    }
+  }, [weatherDescription]);
+
+  useEffect(() => {
     if (promptData && promptData.units) {
       setUnits(promptData.units);
     }
@@ -39,6 +49,7 @@ function App() {
   const handleSubmit = (newPrompt) => {
     setErrorMsg('');
     setWeatherDataLoading(true);
+    setWeatherDescriptionLoading(true);
     setPrompt(newPrompt);
   };
 
@@ -48,6 +59,14 @@ function App() {
         <h1 className="page-title">Current Weather</h1>
         <WeatherForm onSubmit={handleSubmit} />
         {error && <p className="error">{errorMsg.message}</p>}
+        {weatherDescription ? (
+          <Description
+            isLoading={weatherDescriptionLoading}
+            weatherDescription={weatherDescription}
+          />
+        ) : (
+          <Description isLoading={weatherDescriptionLoading} />
+        )}
       </header>
       <main className="main-content">
         {weatherData.name && !errorMsg ? (
